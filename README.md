@@ -14,6 +14,8 @@ Run the generator script on your current system:
 
 This will create `install-packages.sh` containing:
 - All explicitly installed packages (excluding base/base-devel meta-packages)
+  - Official repository packages (installed via `pacman`)
+  - AUR packages (installed via `yay` or `paru` if available)
 - Custom WWAN network configuration (`/etc/systemd/network/20-wwan.network`)
 - ModemManager setup instructions
 
@@ -34,7 +36,8 @@ sudo ./install-packages.sh
 
 The script will:
 - Update the package database
-- Install all your packages
+- Install all official repository packages via `pacman`
+- Install all AUR packages via `yay` or `paru` (if available)
 - Set up ModemManager directories
 - Create the WWAN network configuration
 - Enable ModemManager service
@@ -60,6 +63,9 @@ Dry-run mode doesn't require root privileges.
 ### Packages
 - All packages explicitly installed via `pacman -Qe`
 - Excludes `base` and `base-devel` meta-packages (these are part of the base Arch installation)
+- Automatically separates official repository packages from AUR packages
+- Official packages are installed via `pacman`
+- AUR packages are installed via `yay` or `paru` (whichever is available)
 
 ### Configuration Files
 - `/etc/systemd/network/20-wwan.network` - WWAN interface configuration with route metrics
@@ -74,6 +80,10 @@ Dry-run mode doesn't require root privileges.
 
 - The script attempts to install all packages at once for better dependency resolution
 - If bulk installation fails, it falls back to individual package installation
+- Official repository packages are installed first, then AUR packages
+- AUR packages require an AUR helper (`yay` or `paru`) to be installed
+  - If no AUR helper is found, the script will list AUR packages that need manual installation
+  - AUR helpers typically run as regular users (not root), so the script handles user switching appropriately
 - The script checks for network service configuration (systemd-networkd or NetworkManager)
 - ModemManager service will be enabled if the package is installed
 
