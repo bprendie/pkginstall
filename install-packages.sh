@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Auto-generated installation script for Arch Linux packages
-# Generated on: Tue Nov 25 11:01:05 AM EST 2025
+# Generated on: Tue Nov 25 01:58:57 PM EST 2025
 # 
 # This script installs all user-installed packages and restores
 # custom ModemManager/WWAN configurations
@@ -64,10 +64,9 @@ fi
 
 # Install packages
 info "Installing user packages..."
-PACKAGES=(
+OFFICIAL_PACKAGES=(
   '1password-beta'
   '1password-cli'
-  '3270-fonts'
   'aether'
   'alacritty'
   'asdcontrol'
@@ -125,7 +124,6 @@ PACKAGES=(
   'hyprlock'
   'hyprpicker'
   'hyprsunset'
-  'ibm-fonts'
   'imagemagick'
   'impala'
   'imv'
@@ -251,33 +249,140 @@ PACKAGES=(
   'zoxide'
   'zram-generator'
 )
-# Install all packages at once for better dependency resolution
-if [[ "$DRY_RUN" == "true" ]]; then
-    info "Packages that would be installed (${#PACKAGES[@]} total):"
-    MISSING_COUNT=0
-    INSTALLED_COUNT=0
-    for pkg in "${PACKAGES[@]}"; do
-        if pacman -Q "$pkg" >/dev/null 2>&1; then
-            echo "  ✓ $pkg (already installed)"
-            let INSTALLED_COUNT=INSTALLED_COUNT+1 || true
-        else
-            echo "  → $pkg (would install)"
-            let MISSING_COUNT=MISSING_COUNT+1 || true
-        fi
-    done
-    echo ""
-    info "Summary: $INSTALLED_COUNT already installed, $MISSING_COUNT would be installed"
-    dry_run "Would run: pacman -S --noconfirm ${PACKAGES[*]}"
-else
-    pacman -S --noconfirm "${PACKAGES[@]}" || {
-        error "Some packages failed to install. Attempting individual installation..."
-        for pkg in "${PACKAGES[@]}"; do
-            if ! pacman -Q "$pkg" >/dev/null 2>&1; then
-                info "Installing $pkg..."
-                pacman -S --noconfirm "$pkg" || warn "Failed to install $pkg"
+
+AUR_PACKAGES=(
+  '3270-fonts'
+  'ibm-fonts'
+)
+# Detect AUR helper
+AUR_HELPER=""
+if command -v yay >/dev/null 2>&1; then
+    AUR_HELPER="yay"
+elif command -v paru >/dev/null 2>&1; then
+    AUR_HELPER="paru"
+fi
+
+# Install official repository packages
+if [[ ${#OFFICIAL_PACKAGES[@]} -gt 0 ]]; then
+    info "Installing official repository packages (${#OFFICIAL_PACKAGES[@]} total)..."
+    if [[ "$DRY_RUN" == "true" ]]; then
+        MISSING_COUNT=0
+        INSTALLED_COUNT=0
+        for pkg in "${OFFICIAL_PACKAGES[@]}"; do
+            if pacman -Q "$pkg" >/dev/null 2>&1; then
+                echo "  ✓ $pkg (already installed)"
+                let INSTALLED_COUNT=INSTALLED_COUNT+1 || true
+            else
+                echo "  → $pkg (would install)"
+                let MISSING_COUNT=MISSING_COUNT+1 || true
             fi
         done
-    }
+        echo ""
+        info "Official packages: $INSTALLED_COUNT already installed, $MISSING_COUNT would be installed"
+        dry_run "Would run: pacman -S --noconfirm ${OFFICIAL_PACKAGES[*]}"
+    else
+        pacman -S --noconfirm "${OFFICIAL_PACKAGES[@]}" || {
+            error "Some official packages failed to install. Attempting individual installation..."
+            for pkg in "${OFFICIAL_PACKAGES[@]}"; do
+                if ! pacman -Q "$pkg" >/dev/null 2>&1; then
+                    info "Installing $pkg..."
+                    pacman -S --noconfirm "$pkg" || warn "Failed to install $pkg"
+                fi
+            done
+        }
+    fi
+else
+    info "No official repository packages to install"
+fi
+
+# Install AUR packages
+if [[ ${#AUR_PACKAGES[@]} -gt 0 ]]; then
+    if [[ -z "$AUR_HELPER" ]]; then
+        warn "AUR packages found but no AUR helper (yay/paru) is installed"
+        warn "AUR packages (${#AUR_PACKAGES[@]} total) that need manual installation:"
+        for pkg in "${AUR_PACKAGES[@]}"; do
+            echo "  - $pkg"
+        done
+        warn "Install an AUR helper first:"
+        warn "  yay: https://github.com/Jguer/yay"
+        warn "  paru: https://github.com/Morganamilo/paru"
+    else
+        info "Installing AUR packages (${#AUR_PACKAGES[@]} total) using $AUR_HELPER..."
+        if [[ "$DRY_RUN" == "true" ]]; then
+            MISSING_COUNT=0
+            INSTALLED_COUNT=0
+            for pkg in "${AUR_PACKAGES[@]}"; do
+                if pacman -Q "$pkg" >/dev/null 2>&1; then
+                    echo "  ✓ $pkg (already installed)"
+                    let INSTALLED_COUNT=INSTALLED_COUNT+1 || true
+                else
+                    echo "  → $pkg (would install from AUR)"
+                    let MISSING_COUNT=MISSING_COUNT+1 || true
+                fi
+            done
+            echo ""
+            info "AUR packages: $INSTALLED_COUNT already installed, $MISSING_COUNT would be installed"
+            dry_run "Would run: $AUR_HELPER -S --noconfirm --needed ${AUR_PACKAGES[*]}"
+        else
+            # Note: AUR helpers typically don't need root, but we check anyway
+            if [[ $EUID -eq 0 ]]; then
+                # Try to find a non-root user to run AUR helper
+                REGULAR_USER=""
+                if [[ -n "${SUDO_USER:-}" ]]; then
+                    REGULAR_USER="${SUDO_USER}"
+                elif [[ -n "${USER:-}" ]] && [[ "$USER" != "root" ]]; then
+                    REGULAR_USER="${USER}"
+                else
+                    # Try to find the first regular user with a home directory
+                    for possible_user in $(getent passwd | awk -F: '$3 >= 1000 && $1 != "nobody" {print $1}' | head -1); do
+                        if [[ -n "$possible_user" ]]; then
+                            REGULAR_USER="$possible_user"
+                            break
+                        fi
+                    done
+                fi
+                
+                if [[ -n "$REGULAR_USER" ]]; then
+                    info "Installing AUR packages as user: $REGULAR_USER"
+                    sudo -u "$REGULAR_USER" $AUR_HELPER -S --noconfirm --needed "${AUR_PACKAGES[@]}" || {
+                        error "Some AUR packages failed to install. Attempting individual installation..."
+                        for pkg in "${AUR_PACKAGES[@]}"; do
+                            if ! pacman -Q "$pkg" >/dev/null 2>&1; then
+                                info "Installing $pkg from AUR..."
+                                sudo -u "$REGULAR_USER" $AUR_HELPER -S --noconfirm --needed "$pkg" || warn "Failed to install $pkg"
+                            fi
+                        done
+                    }
+                else
+                    warn "Could not determine non-root user. Installing AUR packages as root (not recommended)..."
+                    warn "Consider running this script with sudo instead of as root directly"
+                    $AUR_HELPER -S --noconfirm --needed "${AUR_PACKAGES[@]}" || {
+                        error "Some AUR packages failed to install. Attempting individual installation..."
+                        for pkg in "${AUR_PACKAGES[@]}"; do
+                            if ! pacman -Q "$pkg" >/dev/null 2>&1; then
+                                info "Installing $pkg from AUR..."
+                                $AUR_HELPER -S --noconfirm --needed "$pkg" || warn "Failed to install $pkg"
+                            fi
+                        done
+                    }
+                fi
+            else
+                # Running as regular user (shouldn't happen in normal flow, but handle it)
+                info "Installing AUR packages as current user..."
+                $AUR_HELPER -S --noconfirm --needed "${AUR_PACKAGES[@]}" || {
+                    error "Some AUR packages failed to install. Attempting individual installation..."
+                    for pkg in "${AUR_PACKAGES[@]}"; do
+                        if ! pacman -Q "$pkg" >/dev/null 2>&1; then
+                            info "Installing $pkg from AUR..."
+                            $AUR_HELPER -S --noconfirm --needed "$pkg" || warn "Failed to install $pkg"
+                        fi
+                    done
+                }
+            fi
+        fi
+    fi
+else
+    info "No AUR packages to install"
 fi
 
 info "Package installation completed!"
