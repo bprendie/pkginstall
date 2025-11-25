@@ -27,20 +27,17 @@ AUR_PACKAGES=""
 pacman -Sy >/dev/null 2>&1 || true
 
 for pkg in $PACKAGES; do
-    # For installed packages, check the Repository field directly
-    if pacman -Qi "$pkg" >/dev/null 2>&1; then
-        REPO=$(pacman -Qi "$pkg" 2>/dev/null | grep "^Repository" | awk '{print $3}' || echo "")
-        if [[ "$REPO" == "aur" ]] || [[ "$REPO" == "local" ]]; then
+    # Check if package exists in sync database (official repos)
+    if pacman -Ss "^${pkg}$" 2>/dev/null | grep -qE "^[a-z].*/${pkg} "; then
+        # Package exists in official repos
+        OFFICIAL_PACKAGES="${OFFICIAL_PACKAGES}${pkg}\n"
+    else
+        # Not in sync database - check if it's installed manually (AUR/local)
+        if pacman -Q "$pkg" >/dev/null 2>&1; then
+            # Package is installed but not in sync database, likely AUR
             AUR_PACKAGES="${AUR_PACKAGES}${pkg}\n"
         else
-            OFFICIAL_PACKAGES="${OFFICIAL_PACKAGES}${pkg}\n"
-        fi
-    else
-        # Package not installed, check if it exists in sync database
-        if pacman -Ss "^${pkg}$" 2>/dev/null | grep -qE "^[a-z].*/${pkg} "; then
-            OFFICIAL_PACKAGES="${OFFICIAL_PACKAGES}${pkg}\n"
-        else
-            # Not in sync database, assume AUR
+            # Not installed and not in sync database, assume AUR
             AUR_PACKAGES="${AUR_PACKAGES}${pkg}\n"
         fi
     fi
