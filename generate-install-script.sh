@@ -249,5 +249,39 @@ echo "✓ Installation script generated: $OUTPUT_SCRIPT"
 echo "  Contains $PACKAGE_COUNT packages"
 echo "  Includes WWAN network configuration"
 echo ""
+
+# Commit and push to GitHub if in a git repository
+if git rev-parse --git-dir > /dev/null 2>&1; then
+    echo "Committing and pushing to GitHub..."
+    
+    # Stage the file (will add if not tracked)
+    if git add "$OUTPUT_SCRIPT" 2>&1; then
+        # Check if there are staged changes
+        if ! git diff --cached --quiet "$OUTPUT_SCRIPT" 2>/dev/null; then
+            # Commit the changes
+            COMMIT_MSG="Update install-packages.sh (auto-generated on $(date +%Y-%m-%d))"
+            if git commit -m "$COMMIT_MSG" 2>&1; then
+                # Push to GitHub
+                if git push 2>&1; then
+                    echo "✓ Successfully pushed to GitHub"
+                else
+                    echo "  Warning: Failed to push to GitHub"
+                    echo "  You may need to push manually: git push"
+                fi
+            else
+                echo "  Warning: Failed to commit changes"
+            fi
+        else
+            echo "  No changes detected in $OUTPUT_SCRIPT"
+        fi
+    else
+        echo "  Warning: Failed to stage $OUTPUT_SCRIPT"
+        echo "  Skipping git operations"
+    fi
+else
+    echo "  Not in a git repository, skipping git operations"
+fi
+
+echo ""
 echo "To use it on a fresh system, copy $OUTPUT_SCRIPT and run:"
 echo "  sudo ./$OUTPUT_SCRIPT"
