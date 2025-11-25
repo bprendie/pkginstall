@@ -56,6 +56,16 @@ AUR_COUNT=$(echo "$AUR_PACKAGES" | grep -v '^$' | wc -l)
 echo "Found $OFFICIAL_COUNT official repository packages"
 echo "Found $AUR_COUNT AUR packages"
 
+# Show AUR packages if any were detected
+if [[ $AUR_COUNT -gt 0 ]]; then
+    echo ""
+    echo "AUR packages detected:"
+    echo "$AUR_PACKAGES" | while read -r pkg; do
+        [[ -n "$pkg" ]] && echo "  - $pkg"
+    done
+    echo ""
+fi
+
 # Detect AUR helper
 AUR_HELPER=""
 if command -v yay >/dev/null 2>&1; then
@@ -237,14 +247,20 @@ if [[ \${#AUR_PACKAGES[@]} -gt 0 ]]; then
         else
             # Note: AUR helpers typically don't need root, but we check anyway
             if [[ \$EUID -eq 0 ]]; then
-                warn "Running AUR helper as root. AUR helpers typically run as regular user."
-                warn "Switching to non-root user if possible..."
-                # Try to find a non-root user
+                # Try to find a non-root user to run AUR helper
                 REGULAR_USER=""
                 if [[ -n "\${SUDO_USER:-}" ]]; then
-                    REGULAR_USER="\$SUDO_USER"
+                    REGULAR_USER="\${SUDO_USER}"
                 elif [[ -n "\${USER:-}" ]] && [[ "\$USER" != "root" ]]; then
-                    REGULAR_USER="\$USER"
+                    REGULAR_USER="\${USER}"
+                else
+                    # Try to find the first regular user with a home directory
+                    for possible_user in \$(getent passwd | awk -F: '\$3 >= 1000 && \$1 != "nobody" {print \$1}' | head -1); do
+                        if [[ -n "\$possible_user" ]]; then
+                            REGULAR_USER="\$possible_user"
+                            break
+                        fi
+                    done
                 fi
                 
                 if [[ -n "\$REGULAR_USER" ]]; then
@@ -260,6 +276,7 @@ if [[ \${#AUR_PACKAGES[@]} -gt 0 ]]; then
                     }
                 else
                     warn "Could not determine non-root user. Installing AUR packages as root (not recommended)..."
+                    warn "Consider running this script with sudo instead of as root directly"
                     \$AUR_HELPER -S --noconfirm --needed "\${AUR_PACKAGES[@]}" || {
                         error "Some AUR packages failed to install. Attempting individual installation..."
                         for pkg in "\${AUR_PACKAGES[@]}"; do
@@ -271,7 +288,8 @@ if [[ \${#AUR_PACKAGES[@]} -gt 0 ]]; then
                     }
                 fi
             else
-                # Running as regular user (dry-run or user ran script directly)
+                # Running as regular user (shouldn't happen in normal flow, but handle it)
+                info "Installing AUR packages as current user..."
                 \$AUR_HELPER -S --noconfirm --needed "\${AUR_PACKAGES[@]}" || {
                     error "Some AUR packages failed to install. Attempting individual installation..."
                     for pkg in "\${AUR_PACKAGES[@]}"; do
