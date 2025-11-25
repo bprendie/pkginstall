@@ -1,5 +1,5 @@
-# Generated installation script (can be regenerated)
-install-packages.sh
+# Generated installation script (now tracked in git)
+# install-packages.sh
 
 # Temporary files
 *.tmp
