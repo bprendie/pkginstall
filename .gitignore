@@ -1,0 +1,18 @@
+# Generated installation script (can be regenerated)
+install-packages.sh
+
+# Temporary files
+*.tmp
+*.log
+/tmp/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Editor files
+*.swp
+*.swo
+*~
+.vscode/
+.idea/

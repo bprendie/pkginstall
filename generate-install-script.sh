@@ -1,0 +1,253 @@
+#!/bin/bash
+
+# Script to generate an installation script for Arch Linux packages
+# and system configurations
+
+set -euo pipefail
+
+OUTPUT_SCRIPT="install-packages.sh"
+WWAN_CONFIG="/etc/systemd/network/20-wwan.network"
+MODEM_MANAGER_DIR="/etc/ModemManager"
+
+echo "Generating installation script..."
+
+# Get all explicitly installed packages, excluding base and base-devel meta-packages
+PACKAGES=$(pacman -Qe | awk '{print $1}' | grep -v "^base$" | grep -v "^base-devel$")
+
+# Count packages
+PACKAGE_COUNT=$(echo "$PACKAGES" | wc -l)
+echo "Found $PACKAGE_COUNT user-installed packages"
+
+# Create the install script header
+cat > "$OUTPUT_SCRIPT" << SCRIPT_HEADER
+#!/bin/bash
+
+# Auto-generated installation script for Arch Linux packages
+# Generated on: $(date)
+# 
+# This script installs all user-installed packages and restores
+# custom ModemManager/WWAN configurations
+#
+# Usage: ./install-packages.sh [--dry-run]
+
+set -euo pipefail
+
+# Parse arguments
+DRY_RUN=false
+if [[ "\${1:-}" == "--dry-run" ]] || [[ "\${1:-}" == "-n" ]]; then
+    DRY_RUN=true
+fi
+
+# Colors for output
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+BLUE='\033[0;34m'
+CYAN='\033[0;36m'
+NC='\033[0m' # No Color
+
+# Function to print colored output
+info() {
+    echo -e "\${GREEN}[INFO]\${NC} \$1"
+}
+
+warn() {
+    echo -e "\${YELLOW}[WARN]\${NC} \$1"
+}
+
+error() {
+    echo -e "\${RED}[ERROR]\${NC} \$1"
+}
+
+dry_run() {
+    echo -e "\${CYAN}[DRY-RUN]\${NC} \$1"
+}
+
+# Check if running as root (unless dry-run)
+if [[ "\$DRY_RUN" == "false" ]] && [[ \$EUID -ne 0 ]]; then
+   error "This script must be run as root (unless using --dry-run)"
+   exit 1
+fi
+
+if [[ "\$DRY_RUN" == "true" ]]; then
+    info "DRY RUN MODE - No changes will be made"
+    echo ""
+fi
+
+info "Starting package installation..."
+
+# Update package database
+if [[ "\$DRY_RUN" == "true" ]]; then
+    dry_run "Would run: pacman -Sy"
+else
+    info "Updating package database..."
+    pacman -Sy
+fi
+
+# Install packages
+info "Installing user packages..."
+SCRIPT_HEADER
+
+# Add package list as an array
+echo "PACKAGES=(" >> "$OUTPUT_SCRIPT"
+echo "$PACKAGES" | while read -r pkg; do
+    echo "  '$pkg'" >> "$OUTPUT_SCRIPT"
+done
+echo ")" >> "$OUTPUT_SCRIPT"
+
+# Add package installation command
+cat >> "$OUTPUT_SCRIPT" << INSTALL_PACKAGES
+# Install all packages at once for better dependency resolution
+if [[ "\$DRY_RUN" == "true" ]]; then
+    info "Packages that would be installed (\${#PACKAGES[@]} total):"
+    MISSING_COUNT=0
+    INSTALLED_COUNT=0
+    for pkg in "\${PACKAGES[@]}"; do
+        if pacman -Q "\$pkg" >/dev/null 2>&1; then
+            echo "  ✓ \$pkg (already installed)"
+            let INSTALLED_COUNT=INSTALLED_COUNT+1 || true
+        else
+            echo "  → \$pkg (would install)"
+            let MISSING_COUNT=MISSING_COUNT+1 || true
+        fi
+    done
+    echo ""
+    info "Summary: \$INSTALLED_COUNT already installed, \$MISSING_COUNT would be installed"
+    dry_run "Would run: pacman -S --noconfirm \${PACKAGES[*]}"
+else
+    pacman -S --noconfirm "\${PACKAGES[@]}" || {
+        error "Some packages failed to install. Attempting individual installation..."
+        for pkg in "\${PACKAGES[@]}"; do
+            if ! pacman -Q "\$pkg" >/dev/null 2>&1; then
+                info "Installing \$pkg..."
+                pacman -S --noconfirm "\$pkg" || warn "Failed to install \$pkg"
+            fi
+        done
+    }
+fi
+INSTALL_PACKAGES
+
+# Add WWAN config section
+cat >> "$OUTPUT_SCRIPT" << 'SCRIPT_FOOTER'
+
+info "Package installation completed!"
+
+# Setup ModemManager/WWAN configuration
+info "Setting up ModemManager/WWAN configuration..."
+
+# Create ModemManager config directories if they don't exist
+if [[ "$DRY_RUN" == "true" ]]; then
+    for dir in /etc/ModemManager/connection.d /etc/ModemManager/fcc-unlock.d /etc/ModemManager/modem-setup.d; do
+        if [[ -d "$dir" ]]; then
+            dry_run "Directory exists: $dir"
+        else
+            dry_run "Would create directory: $dir"
+        fi
+    done
+else
+    mkdir -p /etc/ModemManager/connection.d
+    mkdir -p /etc/ModemManager/fcc-unlock.d
+    mkdir -p /etc/ModemManager/modem-setup.d
+fi
+
+# Create WWAN network configuration
+if [[ "$DRY_RUN" == "true" ]]; then
+    info "WWAN network configuration that would be created:"
+    echo ""
+    echo "  File: /etc/systemd/network/20-wwan.network"
+    echo "  Content:"
+    cat << 'WWAN_CONFIG_EOF' | sed 's/^/    /'
+SCRIPT_FOOTER
+
+# Append the WWAN config content with indentation for dry-run display
+cat "$WWAN_CONFIG" | sed 's/^/    /' >> "$OUTPUT_SCRIPT"
+
+# Close the heredoc and add final instructions
+cat >> "$OUTPUT_SCRIPT" << 'SCRIPT_END'
+WWAN_CONFIG_EOF
+    echo ""
+    if [[ -f /etc/systemd/network/20-wwan.network ]]; then
+        warn "File already exists. Would overwrite it."
+    else
+        dry_run "Would create: /etc/systemd/network/20-wwan.network"
+    fi
+else
+    info "Creating WWAN network configuration..."
+    cat > /etc/systemd/network/20-wwan.network << 'WWAN_CONFIG_EOF'
+SCRIPT_END
+
+# Append the WWAN config content again for actual creation
+cat "$WWAN_CONFIG" >> "$OUTPUT_SCRIPT"
+
+cat >> "$OUTPUT_SCRIPT" << 'SCRIPT_END2'
+WWAN_CONFIG_EOF
+fi
+
+# Ensure systemd-networkd is enabled if using it
+if [[ "$DRY_RUN" == "true" ]]; then
+    if systemctl is-enabled systemd-networkd.service >/dev/null 2>&1; then
+        dry_run "systemd-networkd.service is already enabled"
+    elif systemctl is-enabled NetworkManager.service >/dev/null 2>&1; then
+        dry_run "NetworkManager.service is already enabled"
+    else
+        warn "Neither systemd-networkd nor NetworkManager appears to be enabled"
+        dry_run "Would need to enable one of them manually"
+    fi
+else
+    if systemctl is-enabled systemd-networkd.service >/dev/null 2>&1 || \
+       systemctl is-enabled NetworkManager.service >/dev/null 2>&1; then
+        info "Network services are configured"
+    else
+        warn "Neither systemd-networkd nor NetworkManager appears to be enabled"
+        warn "You may need to enable one of them:"
+        warn "  systemctl enable systemd-networkd.service"
+        warn "  OR"
+        warn "  systemctl enable NetworkManager.service"
+    fi
+fi
+
+# Ensure ModemManager is enabled
+if [[ "$DRY_RUN" == "true" ]]; then
+    if pacman -Q modemmanager >/dev/null 2>&1; then
+        if systemctl is-enabled ModemManager.service >/dev/null 2>&1; then
+            dry_run "ModemManager.service is already enabled"
+        else
+            dry_run "Would enable ModemManager.service"
+        fi
+    else
+        warn "ModemManager is not installed. Would need to install it with: pacman -S modemmanager"
+    fi
+else
+    if pacman -Q modemmanager >/dev/null 2>&1; then
+        info "Enabling ModemManager service..."
+        systemctl enable ModemManager.service || warn "Failed to enable ModemManager"
+    else
+        warn "ModemManager is not installed. Install it with: pacman -S modemmanager"
+    fi
+fi
+
+if [[ "$DRY_RUN" == "true" ]]; then
+    info ""
+    info "Dry run completed! No changes were made."
+    info "To actually apply these changes, run without --dry-run:"
+    info "  sudo ./install-packages.sh"
+else
+    info "Installation script completed successfully!"
+    info ""
+    info "Next steps:"
+    info "  1. Review the installed packages"
+    info "  2. Restart network services if needed: systemctl restart systemd-networkd"
+    info "  3. Check ModemManager status: systemctl status ModemManager"
+fi
+SCRIPT_END2
+
+# Make the script executable
+chmod +x "$OUTPUT_SCRIPT"
+
+echo ""
+echo "✓ Installation script generated: $OUTPUT_SCRIPT"
+echo "  Contains $PACKAGE_COUNT packages"
+echo "  Includes WWAN network configuration"
+echo ""
+echo "To use it on a fresh system, copy $OUTPUT_SCRIPT and run:"
+echo "  sudo ./$OUTPUT_SCRIPT"
