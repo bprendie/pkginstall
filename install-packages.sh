@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Auto-generated installation script for Arch Linux packages
-# Generated on: Tue Nov 25 02:00:03 PM EST 2025
+# Generated on: Wed Dec  3 09:02:19 AM EST 2025
 # 
 # This script installs all user-installed packages and restores
 # custom ModemManager/WWAN configurations
@@ -100,6 +100,7 @@ OFFICIAL_PACKAGES=(
   'fcitx5-qt'
   'fd'
   'ffmpegthumbnailer'
+  'filezilla'
   'fontconfig'
   'freerdp'
   'freerdp2'
@@ -118,6 +119,8 @@ OFFICIAL_PACKAGES=(
   'gvfs-mtp'
   'gvfs-nfs'
   'gvfs-smb'
+  'handbrake'
+  'handbrake-cli'
   'hypridle'
   'hyprland'
   'hyprland-guiutils'
@@ -148,6 +151,7 @@ OFFICIAL_PACKAGES=(
   'linux-firmware'
   'llvm'
   'localsend'
+  'lollypop'
   'luarocks'
   'mako'
   'man-db'
@@ -186,10 +190,12 @@ OFFICIAL_PACKAGES=(
   'postgresql-libs'
   'power-profiles-daemon'
   'python-gobject'
+  'python-pipx'
   'python-poetry-core'
   'python-terminaltexteffects'
   'qt5-wayland'
   'remmina'
+  'rhythmbox'
   'ripgrep'
   'rsync'
   'ruby'
@@ -252,7 +258,9 @@ OFFICIAL_PACKAGES=(
 
 AUR_PACKAGES=(
   '3270-fonts'
+  'epub-reader-bin'
   'ibm-fonts'
+  'makemkv'
 )
 # Detect AUR helper
 AUR_HELPER=""
