@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Auto-generated installation script for Arch Linux packages
-# Generated on: Wed Dec  3 09:02:19 AM EST 2025
+# Generated on: Thu Dec  4 11:56:50 AM EST 2025
 # 
 # This script installs all user-installed packages and restores
 # custom ModemManager/WWAN configurations
@@ -210,6 +210,7 @@ OFFICIAL_PACKAGES=(
   'sshfs'
   'starship'
   'steam'
+  'strawberry'
   'sushi'
   'swaybg'
   'swayosd'
