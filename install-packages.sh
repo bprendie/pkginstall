@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Auto-generated installation script for Arch Linux packages
-# Generated on: Thu Dec  4 11:56:50 AM EST 2025
+# Generated on: Fri Dec  5 12:01:45 PM EST 2025
 # 
 # This script installs all user-installed packages and restores
 # custom ModemManager/WWAN configurations
@@ -72,6 +72,7 @@ OFFICIAL_PACKAGES=(
   'asdcontrol'
   'bash-completion'
   'bat'
+  'blueberry'
   'bluetui'
   'bridge-utils'
   'brightnessctl'
@@ -108,6 +109,7 @@ OFFICIAL_PACKAGES=(
   'ghostty'
   'git'
   'github-cli'
+  'gnome-bluetooth-3.0'
   'gnome-calculator'
   'gnome-disk-utility'
   'gnome-keyring'
@@ -135,6 +137,7 @@ OFFICIAL_PACKAGES=(
   'inxi'
   'iwd'
   'jq'
+  'k3b'
   'kdenlive'
   'kvantum-qt5'
   'lazydocker'
@@ -262,6 +265,7 @@ AUR_PACKAGES=(
   'epub-reader-bin'
   'ibm-fonts'
   'makemkv'
+  'waybar-weather'
 )
 # Detect AUR helper
 AUR_HELPER=""
