@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Auto-generated installation script for Arch Linux packages
-# Generated on: Tue Dec  9 12:59:51 PM EST 2025
+# Generated on: Wed Dec 10 01:44:04 PM EST 2025
 # 
 # This script installs all user-installed packages and restores
 # custom ModemManager/WWAN configurations
@@ -69,7 +69,6 @@ OFFICIAL_PACKAGES=(
   '1password-cli'
   'aether'
   'alacritty'
-  'amd-ucode'
   'asdcontrol'
   'bash-completion'
   'bat'
@@ -267,7 +266,7 @@ AUR_PACKAGES=(
   'epub-reader-bin'
   'ibm-fonts'
   'makemkv'
-  'snapd'
+  'waybar-weather'
 )
 # Detect AUR helper
 AUR_HELPER=""
