@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Auto-generated installation script for Arch Linux packages
-# Generated on: Wed Dec 10 01:44:04 PM EST 2025
+# Generated on: Fri Jan  2 01:03:00 PM EST 2026
 # 
 # This script installs all user-installed packages and restores
 # custom ModemManager/WWAN configurations
@@ -74,6 +74,7 @@ OFFICIAL_PACKAGES=(
   'bat'
   'blueberry'
   'bluetui'
+  'bolt'
   'bridge-utils'
   'brightnessctl'
   'btop'
@@ -89,6 +90,7 @@ OFFICIAL_PACKAGES=(
   'docker'
   'docker-buildx'
   'docker-compose'
+  'dosfstools'
   'dust'
   'efibootmgr'
   'evince'
@@ -104,7 +106,6 @@ OFFICIAL_PACKAGES=(
   'filezilla'
   'fontconfig'
   'freerdp'
-  'freerdp2'
   'fzf'
   'ghostty'
   'git'
@@ -114,6 +115,7 @@ OFFICIAL_PACKAGES=(
   'gnome-disk-utility'
   'gnome-keyring'
   'gnome-themes-extra'
+  'gparted'
   'gpu-screen-recorder'
   'grim'
   'gst-plugin-pipewire'
@@ -126,6 +128,7 @@ OFFICIAL_PACKAGES=(
   'hypridle'
   'hyprland'
   'hyprland-guiutils'
+  'hyprland-preview-share-picker'
   'hyprlock'
   'hyprpicker'
   'hyprsunset'
@@ -161,13 +164,12 @@ OFFICIAL_PACKAGES=(
   'mariadb-libs'
   'mise'
   'modemmanager'
+  'moonlight-qt'
   'mpv'
   'nano'
   'nautilus'
   'neovim'
   'network-manager-applet'
-  'networkmanager'
-  'nm-connection-editor'
   'noto-fonts'
   'noto-fonts-cjk'
   'noto-fonts-emoji'
@@ -232,7 +234,6 @@ OFFICIAL_PACKAGES=(
   'ufw-docker'
   'unzip'
   'usage'
-  'usbutils'
   'uwsm'
   'vde2'
   'virt-manager'
@@ -246,7 +247,6 @@ OFFICIAL_PACKAGES=(
   'wireplumber'
   'wl-clipboard'
   'woff2-font-awesome'
-  'wpa_supplicant'
   'xdg-desktop-portal-gtk'
   'xdg-desktop-portal-hyprland'
   'xdg-terminal-exec'
@@ -262,11 +262,14 @@ OFFICIAL_PACKAGES=(
 
 AUR_PACKAGES=(
   '3270-fonts'
+  'apfs-fuse-git'
+  'apfsprogs-git'
+  'dmg2img'
   'epr-git'
   'epub-reader-bin'
   'ibm-fonts'
+  'linux-minidisc'
   'makemkv'
-  'waybar-weather'
 )
 # Detect AUR helper
 AUR_HELPER=""
