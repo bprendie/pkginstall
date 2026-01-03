@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Auto-generated installation script for Arch Linux packages
-# Generated on: Fri Jan  2 01:03:00 PM EST 2026
+# Generated on: Sat Jan  3 12:34:43 PM EST 2026
 # 
 # This script installs all user-installed packages and restores
 # custom ModemManager/WWAN configurations
@@ -270,6 +270,7 @@ AUR_PACKAGES=(
   'ibm-fonts'
   'linux-minidisc'
   'makemkv'
+  'rustdesk'
 )
 # Detect AUR helper
 AUR_HELPER=""
