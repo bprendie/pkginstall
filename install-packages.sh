@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Auto-generated installation script for Arch Linux packages
-# Generated on: Sat Jan  3 12:34:43 PM EST 2026
+# Generated on: Tue Jan 13 09:50:30 AM EST 2026
 # 
 # This script installs all user-installed packages and restores
 # custom ModemManager/WWAN configurations
@@ -72,13 +72,13 @@ OFFICIAL_PACKAGES=(
   'asdcontrol'
   'bash-completion'
   'bat'
-  'blueberry'
   'bluetui'
   'bolt'
   'bridge-utils'
   'brightnessctl'
   'btop'
   'btrfs-progs'
+  'calibre'
   'clang'
   'cups'
   'cups-browsed'
@@ -91,6 +91,7 @@ OFFICIAL_PACKAGES=(
   'docker-buildx'
   'docker-compose'
   'dosfstools'
+  'dotnet-runtime-9.0'
   'dust'
   'efibootmgr'
   'evince'
@@ -102,6 +103,7 @@ OFFICIAL_PACKAGES=(
   'fcitx5-gtk'
   'fcitx5-qt'
   'fd'
+  'fdkaac'
   'ffmpegthumbnailer'
   'filezilla'
   'fontconfig'
@@ -111,6 +113,7 @@ OFFICIAL_PACKAGES=(
   'git'
   'github-cli'
   'gnome-bluetooth-3.0'
+  'gnome-boxes'
   'gnome-calculator'
   'gnome-disk-utility'
   'gnome-keyring'
@@ -182,6 +185,7 @@ OFFICIAL_PACKAGES=(
   'omarchy-nvim'
   'omarchy-walker'
   'openbsd-netcat'
+  'opencode'
   'pamixer'
   'pinta'
   'pipewire'
@@ -255,22 +259,26 @@ OFFICIAL_PACKAGES=(
   'yaru-icon-theme'
   'yay'
   'yazi'
+  'yq'
   'yt-dlp'
   'zoxide'
   'zram-generator'
 )
 
 AUR_PACKAGES=(
-  '3270-fonts'
+  'abcde'
   'apfs-fuse-git'
   'apfsprogs-git'
+  'blueberry'
   'dmg2img'
   'epr-git'
   'epub-reader-bin'
   'ibm-fonts'
+  'libation'
   'linux-minidisc'
   'makemkv'
   'rustdesk'
+  'toutui-bin'
 )
 # Detect AUR helper
 AUR_HELPER=""
