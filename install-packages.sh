@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Auto-generated installation script for Arch Linux packages
-# Generated on: Tue Jan 13 09:50:30 AM EST 2026
+# Generated on: Tue Feb 10 09:41:02 AM EST 2026
 # 
 # This script installs all user-installed packages and restores
 # custom ModemManager/WWAN configurations
@@ -74,7 +74,6 @@ OFFICIAL_PACKAGES=(
   'bat'
   'bluetui'
   'bolt'
-  'bridge-utils'
   'brightnessctl'
   'btop'
   'btrfs-progs'
@@ -220,6 +219,7 @@ OFFICIAL_PACKAGES=(
   'starship'
   'steam'
   'strawberry'
+  'sudo'
   'sushi'
   'swaybg'
   'swayosd'
@@ -239,7 +239,6 @@ OFFICIAL_PACKAGES=(
   'unzip'
   'usage'
   'uwsm'
-  'vde2'
   'virt-manager'
   'virt-viewer'
   'visual-studio-code-bin'
@@ -270,6 +269,7 @@ AUR_PACKAGES=(
   'apfs-fuse-git'
   'apfsprogs-git'
   'blueberry'
+  'bridge-utils'
   'dmg2img'
   'epr-git'
   'epub-reader-bin'
