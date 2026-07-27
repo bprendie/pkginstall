@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Auto-generated installation script for Arch Linux packages
-# Generated on: Thu Jul  9 09:55:16 AM EDT 2026
+# Generated on: Mon Jul 27 12:34:54 PM EDT 2026
 # 
 # This script installs all user-installed packages and restores
 # custom ModemManager/WWAN configurations
@@ -192,6 +192,7 @@ OFFICIAL_PACKAGES=(
   'noto-fonts-emoji'
   'noto-fonts-extra'
   'nss-mdns'
+  'ntfsprogs'
   'obs-studio'
   'obsidian'
   'omarchy-keyring'
@@ -213,7 +214,6 @@ OFFICIAL_PACKAGES=(
   'postgresql-libs'
   'power-profiles-daemon'
   'python-gobject'
-  'python-mutagen'
   'python-pipx'
   'python-poetry-core'
   'python-terminaltexteffects'
@@ -297,17 +297,15 @@ AUR_PACKAGES=(
   'apfs-fuse-git'
   'apfsprogs-git'
   'blueberry'
+  'brave-bin'
   'bridge-utils'
   'cd-discid'
-  'dmg2img'
   'epr-git'
-  'epub-reader-bin'
+  'google-chrome'
   'hyprmon-bin'
   'ibm-bob-bin'
   'ibm-fonts'
-  'libation'
   'linux-minidisc'
-  'makemkv'
   'perl-musicbrainz-discid'
   'perl-webservice-musicbrainz'
   'toutui-bin'
