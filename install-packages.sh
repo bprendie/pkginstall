@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Auto-generated installation script for Arch Linux packages
-# Generated on: Mon Jul 27 12:34:54 PM EDT 2026
+# Generated on: Thu Aug 13 03:12:51 PM EDT 2026
 # 
 # This script installs all user-installed packages and restores
 # custom ModemManager/WWAN configurations
@@ -232,6 +232,7 @@ OFFICIAL_PACKAGES=(
   'snapper'
   'socat'
   'sof-firmware'
+  'sound-juicer'
   'spotify'
   'sshfs'
   'starship'
